@@ -21,10 +21,21 @@ class Calculator {
      * NOTE: An alternative to a lot of this algorithm is to use the eval() function
      */
     public processInput(inputStr: string): string {
+        const firstChar = inputStr[0]
+        if (!isNaN(Number(firstChar)) || firstChar === '.' && this.calcString === '') { 
+            this.calculatedNum = 0
+        }
+
         for (let i = 0; i < inputStr.length; i++) {
             const char = inputStr[i]
             if (char === '=') {
-                this.calculatedNum = this.calculate(this.calcString)
+                const nextChar = inputStr[i + 1]
+                if (i < inputStr.length - 1 && !isNaN(Number(nextChar)) || nextChar === '.') {
+                    this.calculatedNum = 0
+                } else {
+                    this.calculatedNum = this.calculate(this.calcString)
+                }
+
                 this.calcString = ''
             } else {
                 this.calcString += char
@@ -89,10 +100,26 @@ class Calculator {
                 continue
             }
 
+            if (char === '%') {
+                if (i < inputStr.length - 1) {
+                    const nextChar = inputStr[i + 1]
+                    if (!(!isNaN(Number(nextChar)) || nextChar === '.')) {
+                        stack.push(currNum / 100)
+                    }
+                    continue
+                }
+            }
+
             if (lastOp === '-') {
                 stack.push(currNum * -1)
             } else if (lastOp === '+') {
                 stack.push(currNum)
+            } else if (lastOp === '%') {
+                const topNum = stack.pop()
+                if (topNum === undefined) {
+                    throw new Error('Cannot percentage numbers because there are no numbers entered.')
+                }
+                stack.push((topNum * currNum) / 100)
             } else if (lastOp === '*') {
                 const topNum = stack.pop()
                 if (topNum === undefined) {
@@ -112,7 +139,15 @@ class Calculator {
             lastOp = char
             currNum = 0
         }
-            
+
+        if (inputStr[inputStr.length - 1] === '%') {
+            const topNum = stack.pop()
+            if (topNum === undefined) {
+                throw new Error('Cannot percentage numbers because there are no numbers entered.')
+            }
+            stack.push(topNum / 100)
+        }
+
         let result = 0
         for (const val of stack) {
             result += val

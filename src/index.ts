@@ -11,7 +11,7 @@ rl.prompt()
 // TODO: Determine what to do if a string like '2+c5' is passed in
 rl.on('line', (line) => {
   // Remove any unwanted characters
-  const trimmedLine = (line.trim()).replace(/[^0-9c=\.+\-*\/]/g, '')
+  const trimmedLine = (line.trim()).replace(/[^0-9c%=\.+\-*\/]/g, '')
   switch (trimmedLine) {
     case 'c':
       calculator.clear()
